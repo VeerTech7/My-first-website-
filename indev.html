@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopKart - Online Shopping</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f1f3f6;color:#222}
+header{background:#2874f0;color:white;padding:15px 5%;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{font-size:27px;font-weight:bold}
+.search{flex:1;min-width:180px;padding:11px;border:0;border-radius:5px}
+button{cursor:pointer;border:0;border-radius:5px;padding:10px 15px;font-weight:bold}
+.login{background:white;color:#2874f0}
+nav{background:white;padding:14px 5%;display:flex;gap:25px;overflow-x:auto}
+nav span{cursor:pointer;white-space:nowrap;font-weight:bold}
+.hero{margin:18px auto;background:linear-gradient(120deg,#2874f0,#00bcd4);color:white;padding:45px 25px;text-align:center;border-radius:8px;width:92%}
+.hero h1{font-size:35px;margin-bottom:12px}
+.container{padding:20px 4%}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:18px}
+.card{background:white;padding:15px;border-radius:8px;box-shadow:0 2px 7px #0001;transition:.2s}
+.card:hover{transform:translateY(-4px)}
+.product-img{height:155px;display:flex;align-items:center;justify-content:center;font-size:75px;background:#f7f8fa;border-radius:5px;margin-bottom:12px}
+.card h3{font-size:16px;margin:8px 0}
+.price{font-size:19px;font-weight:bold;color:#222;margin:8px 0}
+.old{color:#888;text-decoration:line-through;font-size:13px}
+.add{background:#ff9f00;color:white;width:100%;margin-top:8px}
+.buy{background:#fb641b;color:white;width:100%;margin-top:7px}
+.wish{background:#eee;width:100%;margin-top:7px}
+.panel{display:none;position:fixed;inset:0;background:#0007;z-index:5;justify-content:center;align-items:center;padding:15px}
+.panel-content{background:white;padding:22px;border-radius:10px;width:100%;max-width:450px;max-height:90vh;overflow:auto}
+.panel-content h2{margin-bottom:15px}
+.close{float:right;background:#eee}
+.cart-item{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #ddd}
+input,select{padding:11px;border:1px solid #ccc;border-radius:5px}
+.panel-content input{width:100%;margin:7px 0}
+.full{width:100%;background:#2874f0;color:white;margin-top:12px}
+footer{background:#172337;color:white;text-align:center;padding:25px;margin-top:35px}
+@media(max-width:600px){header{gap:10px}.logo{font-size:22px}.hero h1{font-size:25px}.products{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:10px}.product-img{height:110px;font-size:55px}}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">ShopKart</div>
+<input class="search" id="search" placeholder="Search for products..." oninput="renderProducts()">
+<button class="login" onclick="openPanel('loginPanel')">Login</button>
+<button onclick="openCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
+</header>
+
+<nav>
+<span onclick="setCategory('All')">All</span>
+<span onclick="setCategory('Mobiles')">Mobiles</span>
+<span onclick="setCategory('Electronics')">Electronics</span>
+<span onclick="setCategory('Fashion')">Fashion</span>
+<span onclick="setCategory('Books')">Books</span>
+<span onclick="setCategory('Accessories')">Accessories</span>
+</nav>
+
+<section class="hero">
+<h1>Welcome to ShopKart</h1>
+<p>Big Shopping Days — Great Deals on Your Favourite Products!</p>
+</section>
+
+<main class="container">
+<div class="toolbar">
+<h2 id="heading">Featured Products</h2>
+<select id="sort" onchange="renderProducts()">
+<option value="default">Sort: Recommended</option>
+<option value="low">Price: Low to High</option>
+<option value="high">Price: High to Low</option>
+</select>
+</div>
+<div class="products" id="products"></div>
+</main>
+
+<footer>
+<h2>ShopKart</h2>
+<p>Online Shopping Demo Project</p>
+<p>About | Contact | Privacy Policy</p>
+<p>©️ 2026 ShopKart. All rights reserved.</p>
+</footer>
+
+<!-- Cart -->
+<div class="panel" id="cartPanel">
+<div class="panel-content">
+<button class="close" onclick="closePanel('cartPanel')">✕</button>
+<h2>My Shopping Cart</h2>
+<div id="cartItems"></div>
+<h3 id="total"></h3>
+<button class="full" onclick="checkout()">Proceed to Checkout</button>
+</div>
+</div>
+
+<!-- Login -->
+<div class="panel" id="loginPanel">
+<div class="panel-content">
+<button class="close" onclick="closePanel('loginPanel')">✕</button>
+<h2>Login / Create Account</h2>
+<input id="username" placeholder="Enter your name">
+<input id="email" type="email" placeholder="Enter email">
+<button class="full" onclick="login()">Continue</button>
+<p id="loginMessage"></p>
+</div>
+</div>
+
+<!-- Checkout -->
+<div class="panel" id="checkoutPanel">
+<div class="panel-content">
+<button class="close" onclick="closePanel('checkoutPanel')">✕</button>
+<h2>Checkout</h2>
+<input id="customerName" placeholder="Full Name">
+<input id="phone" type="tel" placeholder="Mobile Number">
+<input id="address" placeholder="Full Delivery Address">
+<select id="payment">
+<option>Cash on Delivery</option>
+<option>Demo UPI</option>
+</select>
+<button class="full" onclick="placeOrder()">Place Order</button>
+<p id="orderMessage"></p>
+</div>
+</div>
+
+<script>
+const products = [
+{id:1,name:"iPhone 15",category:"Mobiles",price:59999,old:69999,icon:"📱"},
+{id:2,name:"Samsung Galaxy",category:"Mobiles",price:24999,old:29999,icon:"📱"},
+{id:3,name:"OnePlus Nord",category:"Mobiles",price:22999,old:26999,icon:"📱"},
+{id:4,name:"HP Laptop",category:"Electronics",price:45999,old:52999,icon:"💻"},
+{id:5,name:"Wireless Headphones",category:"Electronics",price:1499,old:2999,icon:"🎧"},
+{id:6,name:"Smart Watch",category:"Electronics",price:1999,old:3499,icon:"⌚"},
+{id:7,name:"Men's T-Shirt",category:"Fashion",price:499,old:999,icon:"👕"},
+{id:8,name:"Running Shoes",category:"Fashion",price:1499,old:2499,icon:"👟"},
+{id:9,name:"Backpack",category:"Fashion",price:899,old:1499,icon:"🎒"},
+{id:10,name:"Programming Book",category:"Books",price:399,old:599,icon:"📚"},
+{id:11,name:"JavaScript Guide",category:"Books",price:299,old:499,icon:"📖"},
+{id:12,name:"Keyboard",category:"Accessories",price:799,old:1299,icon:"⌨️"},
+{id:13,name:"Gaming Mouse",category:"Accessories",price:599,old:999,icon:"🖱️"},
+{id:14,name:"Power Bank",category:"Accessories",price:1199,old:1799,icon:"🔋"},
+{id:15,name:"Bluetooth Speaker",category:"Electronics",price:1299,old:1999,icon:"🔊"},
+{id:16,name:"Digital Camera",category:"Electronics",price:18999,old:22999,icon:"📷"},
+{id:17,name:"Sunglasses",category:"Fashion",price:699,old:1199,icon:"🕶️"},
+{id:18,name:"Formal Shirt",category:"Fashion",price:999,old:1599,icon:"👔"},
+{id:19,name:"Notebook Set",category:"Books",price:199,old:299,icon:"📓"},
+{id:20,name:"Tablet",category:"Electronics",price:15999,old:18999,icon:"📲"},
+{id:21,name:"USB Drive",category:"Accessories",price:399,old:699,icon:"💾"},
+{id:22,name:"Gaming Controller",category:"Accessories",price:1799,old:2499,icon:"🎮"},
+{id:23,name:"Sports Shoes",category:"Fashion",price:1899,old:2799,icon:"👟"},
+{id:24,name:"C Programming Book",category:"Books",price:349,old:499,icon:"📕"},
+{id:25,name:"Android Phone",category:"Mobiles",price:12999,old:15999,icon:"📱"},
+{id:26,name:"Smart TV",category:"Electronics",price:24999,old:29999,icon:"📺"},
+{id:27,name:"Wallet",category:"Fashion",price:399,old:699,icon:"👛"},
+{id:28,name:"Web Development Book",category:"Books",price:499,old:799,icon:"📗"},
+{id:29,name:"Laptop Stand",category:"Accessories",price:899,old:1299,icon:"🖥️"},
+{id:30,name:"Earbuds",category:"Electronics",price:999,old:1699,icon:"🎵"}
+];
+
+let cart = JSON.parse(localStorage.getItem("shopkartCart") || "[]");
+let category = "All";
+let user = JSON.parse(localStorage.getItem("shopkartUser") || "null");
+
+function saveCart(){
+ localStorage.setItem("shopkartCart",JSON.stringify(cart));
+ document.getElementById("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);
+}
+
+function renderProducts(){
+ let query=document.getElementById("search").value.toLowerCase();
+ let list=products.filter(p=>(category==="All"||p.category===category)&&p.name.toLowerCase().includes(query));
+ let sort=document.getElementById("sort").value;
+ if(sort==="low")list.sort((a,b)=>a.price-b.price);
+ if(sort==="high")list.sort((a,b)=>b.price-a.price);
+
+ document.getElementById("heading").textContent=category==="All"?"Featured Products":category;
+ document.getElementById("products").innerHTML=list.map(p=>`
+ <div class="card">
+ <div class="product-img">${p.icon}</div>
+ <h3>${p.name}</h3>
+ <p>${p.category}</p>
+ <div class="price">₹${p.price.toLocaleString("en-IN")} <span class="old">₹${p.old.toLocaleString("en-IN")}</span></div>
+ <button class="add" onclick="addToCart(${p.id})">Add to Cart</button>
+ <button class="buy" onclick="buyNow(${p.id})">Buy Now</button>
+ <button class="wish" onclick="wishlist(${p.id})">♡ Wishlist</button>
+ </div>`).join("")||"<p>No products found.</p>";
+}
+
+function setCategory(c){
+ category=c;
+ renderProducts();
+}
+
+function addToCart(id){
+ let item=cart.find(x=>x.id===id);
+ if(item)item.qty++;
+ else cart.push({id,qty:1});
+ saveCart();
+ alert("Product added to cart!");
+}
+
+function buyNow(id){
+ addToCart(id);
+ openCart();
+}
+
+function openCart(){
+ renderCart();
+ openPanel("cartPanel");
+}
+
+function renderCart(){
+ let box=document.getElementById("cartItems");
+ if(cart.length===0){
+ box.innerHTML="<p>Your cart is empty.</p>";
+ document.getElementById("total").textContent="";
+ return;
+ }
+ box.innerHTML=cart.map(x=>{
+ let p=products.find(y=>y.id===x.id);
+ return `<div class="cart-item">
+ <div>${p.icon} ${p.name}<br>₹${p.price.toLocaleString("en-IN")} × ${x.qty}</div>
+ <div>
+ <button onclick="changeQty(${x.id},-1)">−</button>
+ <button onclick="changeQty(${x.id},1)">+</button>
+ <button onclick="removeItem(${x.id})">🗑️</button>
+ </div></div>`;
+ }).join("");
+ let sum=cart.reduce((s,x)=>s+products.find(p=>p.id===x.id).price*x.qty,0);
+ document.getElementById("total").textContent="Total: ₹"+sum.toLocaleString("en-IN");
+}
+
+function changeQty(id,n){
+ let item=cart.find(x=>x.id===id);
+ item.qty+=n;
+ if(item.qty<=0)cart=cart.filter(x=>x.id!==id);
+ saveCart();renderCart();
+}
+
+function removeItem(id){
+ cart=cart.filter(x=>x.id!==id);
+ saveCart();renderCart();
+}
+
+function wishlist(id){
+ let p=products.find(x=>x.id===id);
+ alert(p.name+" added to demo wishlist!");
+}
+
+function login(){
+ let name=document.getElementById("username").value.trim();
+ let email=document.getElementById("email").value.trim();
+ if(!name||!email||!email.includes("@")){
+ document.getElementById("loginMessage").textContent="Please enter a valid name and email.";
+ return;
+ }
+ user={name,email};
+ localStorage.setItem("shopkartUser",JSON.stringify(user));
+ document.getElementById("loginMessage").textContent="Welcome, "+name+"!";
+}
+
+function checkout(){
+ if(cart.length===0){alert("Your cart is empty!");return;}
+ closePanel("cartPanel");
+ openPanel("checkoutPanel");
+}
+
+function placeOrder(){
+ let name=document.getElementById("customerName").value.trim();
+ let phone=document.getElementById("phone").value.trim();
+ let address=document.getElementById("address").value.trim();
+ if(!name||!phone||!address){
+ alert("Please fill all delivery details.");
+ return;
+ }
+ if(!/^[0-9]{10}$/.test(phone)){
+ alert("Enter a valid 10-digit mobile number.");
+ return;
+ }
+ let order={
+ name,phone,address,
+ items:cart,
+ total:cart.reduce((s,x)=>s+products.find(p=>p.id===x.id).price*x.qty,0),
+ date:new Date().toLocaleString()
+ };
+ let orders=JSON.parse(localStorage.getItem("shopkartOrders")||"[]");
+ orders.push(order);
+ localStorage.setItem("shopkartOrders",JSON.stringify(orders));
+ cart=[];
+ saveCart();
+ document.getElementById("orderMessage").textContent="Demo order placed successfully!";
+ document.getElementById("customerName").value="";
+ document.getElementById("phone").value="";
+ document.getElementById("address").value="";
+}
+
+function openPanel(id){
+ document.getElementById(id).style.display="flex";
+}
+function closePanel(id){
+ document.getElementById(id).style.display="none";
+}
+
+saveCart();
+renderProducts();
+</script>
+
+</body>
+</html>
